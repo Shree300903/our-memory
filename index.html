@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Our Memory ❤️</title>
+  <style>
+    :root{
+      --bg1:#08111f; --bg2:#0c1d35; --bg3:#15294a;
+      --paper:#fffdf6; --paper-edge:#f0e7d8; --ink:#2c1f0f;
+      --accent:#e25b5b; --glass:rgba(255,255,255,0.06);
+    }
+    html,body{height:100%;margin:0;font-family:Georgia,serif;-webkit-font-smoothing:antialiased}
+    body{
+      background:linear-gradient(180deg,var(--bg1),var(--bg2),var(--bg3));
+      display:flex;align-items:center;justify-content:center;padding:24px;overflow:hidden;color:var(--paper);
+    }
+    .stage{width:100%;max-width:920px;position:relative;display:flex;align-items:center;justify-content:center}
+
+    /* floating hearts + particles */
+    .particles{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+    .heart{position:absolute;font-size:18px;opacity:0.95;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.45));animation:rise linear infinite}
+    .heart:nth-child(1){left:8%;animation-duration:9s;animation-delay:0s}
+    .heart:nth-child(2){left:28%;animation-duration:7.5s;animation-delay:1s}
+    .heart:nth-child(3){left:52%;animation-duration:10s;animation-delay:0.5s}
+    .heart:nth-child(4){left:72%;animation-duration:8s;animation-delay:2s}
+    .heart:nth-child(5){left:88%;animation-duration:11s;animation-delay:0.8s}
+    @keyframes rise{0%{transform:translateY(0) scale(.9);opacity:0.95}60%{opacity:0.8}100%{transform:translateY(-900px) scale(1.2);opacity:0}}
+
+    /* container card for glassy feel */
+    .card{position:relative;width:100%;padding:40px;display:flex;align-items:center;justify-content:center;border-radius:18px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 20px 60px rgba(3,8,18,0.6);backdrop-filter:blur(6px);}
+
+    /* Envelope */
+    .envelope-wrap{position:relative;width:420px;height:260px;display:flex;align-items:center;justify-content:center}
+    .envelope{position:relative;width:360px;height:220px;background:linear-gradient(180deg,#faf5e9,#f3e9d6);border-radius:10px;box-shadow:0 18px 50px rgba(0,0,0,0.5);overflow:visible}
+    /* bottom body shape with subtle fold */
+    .envelope::before{content:'';position:absolute;left:0;right:0;bottom:0;height:60%;background:linear-gradient(180deg,#fffaf0,#efe4cc);border-bottom-left-radius:10px;border-bottom-right-radius:10px}
+    /* flap */
+    .flap{position:absolute;left:0;right:0;top:-2px;height:0;width:0;border-left:180px solid transparent;border-right:180px solid transparent;border-bottom:110px solid #e8d7b5;border-top-left-radius:6px;border-top-right-radius:6px;transform-origin:top center;transition:transform 900ms cubic-bezier(.2,.9,.18,1);box-shadow:0 12px 28px rgba(0,0,0,0.28)}
+    .envelope.open .flap{transform:rotateX(-180deg)}
+
+    /* front fold lines */
+    .fold-lines{position:absolute;inset:0;pointer-events:none}
+    .fold-lines::after{content:'';position:absolute;left:50%;top:12%;width:2px;height:78%;background:linear-gradient(180deg,transparent,rgba(0,0,0,0.06));transform:translateX(-50%);opacity:0.15}
+
+    /* wax seal */
+    .seal{position:absolute;left:50%;top:54%;transform:translate(-50%,-50%);width:72px;height:72px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#ffb3b3,#e14b4b);display:flex;align-items:center;justify-content:center;color:white;font-size:28px;box-shadow:0 8px 26px rgba(0,0,0,0.5),0 2px 10px rgba(226,91,91,0.45);cursor:pointer;transition:transform 160ms}
+    .seal:active{transform:translate(-50%,-50%) scale(.96)}
+    .seal.pop{transform:translate(-50%,-80%) scale(0.85);opacity:0;transition:transform 420ms ease,opacity 420ms ease}
+
+    /* folded paper */
+    .folded{position:absolute;left:50%;top:48%;transform:translate(-50%,20px);width:300px;height:140px;background:linear-gradient(180deg,#fffef8,#f7f0dd);border-radius:10px;box-shadow:0 22px 46px rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;color:var(--ink);font-weight:700;letter-spacing:0.4px;cursor:pointer;opacity:0;pointer-events:none;transition:transform 700ms cubic-bezier(.2,.9,.18,1),opacity 600ms}
+    .folded.show{opacity:1;pointer-events:auto;transform:translate(-50%,-40px)}
+    .folded.floating{animation:float 6s ease-in-out infinite}
+    @keyframes float{0%{transform:translate(-50%,-40px) translateY(0)}50%{transform:translate(-50%,-40px) translateY(-6px)}100%{transform:translate(-50%,-40px) translateY(0)}}
+
+    /* unfold / letter */
+    .letter{display:none;position:absolute;left:50%;top:48%;transform:translate(-50%,0);width:78%;max-width:720px;background:linear-gradient(180deg,var(--paper),#fff9ea);padding:28px 32px;border-radius:12px;box-shadow:0 30px 80px rgba(2,6,18,0.6);color:var(--ink);
+      max-height:74vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-right:20px;
+    }
+    .letter.show{display:block;animation:letterPop 900ms cubic-bezier(.2,.9,.18,1) forwards}
+    @keyframes letterPop{0%{transform:translate(-50%,30px) scale(.98);opacity:0}60%{transform:translate(-50%,-10px) scale(1.02);opacity:1}100%{transform:translate(-50%,0) scale(1);opacity:1}}
+
+    .letter h2{margin:0 0 12px 0;text-align:center}
+    .letter .intro{font-weight:700;text-align:center;color:#8c5746;margin-bottom:10px}
+    .letter .content{min-height:260px;font-size:18px;line-height:1.8;white-space:pre-wrap}
+
+    /* gift */
+    .gift{font-size:64px;display:inline-block;cursor:pointer;margin-top:18px;transition:transform .28s,box-shadow .28s;filter:drop-shadow(0 8px 30px rgba(0,0,0,0.35));}
+    .gift:hover{transform:translateY(-6px) scale(1.05)}
+    .gift.wiggle{animation:wig 2.6s ease-in-out infinite}
+    @keyframes wig{0%{transform:rotate(0)}20%{transform:rotate(-8deg)}40%{transform:rotate(6deg)}60%{transform:rotate(-6deg)}80%{transform:rotate(4deg)}100%{transform:rotate(0)}}
+
+    /* video overlay */
+    .overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.0);visibility:hidden;opacity:0;transition:opacity .6s,visibility .6s}
+    .overlay.show{visibility:visible;opacity:1;background:rgba(0,0,0,0.88)}
+    .player{position:relative;width:95%;max-width:1100px;max-height:95vh}
+    .player video{width:100%;height:100%;border-radius:8px;background:black;object-fit:contain}
+    .player .customPlay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:96px;height:96px;border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 12px 40px rgba(0,0,0,0.6)}
+    .player .customPlay svg{width:44px;height:44px;fill:var(--accent)}
+
+    /* end fade message */
+    .end{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#000;color:var(--paper);opacity:0;visibility:hidden;transition:opacity .9s,visibility .9s}
+    .end.show{opacity:1;visibility:visible}
+    .end h3{font-size:24px;margin:0 0 10px}
+
+    /* responsiveness */
+    @media (max-width:600px){
+      .envelope{width:300px;height:190px}
+      .flap{border-left:150px solid transparent;border-right:150px solid transparent;border-bottom:95px solid #e8d7b5}
+      .seal{width:58px;height:58px;font-size:24px}
+      .folded{width:260px;height:120px}
+      .letter{width:92%}
+    }
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <div class="particles" aria-hidden="true">
+      <span class="heart">❤️</span>
+      <span class="heart">❤️</span>
+      <span class="heart">❤️</span>
+      <span class="heart">❤️</span>
+      <span class="heart">❤️</span>
+    </div>
+
+    <section class="card" aria-labelledby="title">
+      <div class="envelope-wrap" aria-hidden="false">
+        <div id="envelope" class="envelope" role="button" aria-label="Open envelope">
+          <div class="flap"></div>
+          <div class="fold-lines"></div>
+          <div id="seal" class="seal" title="Open me">❤</div>
+        </div>
+
+        <div id="folded" class="folded" role="button" aria-label="Tap to open">
+          Tap To Open 📜
+        </div>
+
+        <article id="letter" class="letter" aria-live="polite" tabindex="0">
+          <h2 id="title">For You ❤️</h2>
+          <div class="intro">A Memory I Never Wanted To Forget — Open slowly... ✨</div>
+          <div id="content" class="content"></div>
+          <div style="text-align:center;margin-top:12px">
+            <div style="font-weight:700;margin-bottom:6px">One More Thing... ❤️</div>
+            <div id="gift" class="gift wiggle" role="button" aria-label="Open memory">🎁</div>
+            <div style="font-weight:700;color:#5b3b2f;margin-top:6px">Open Memory</div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <div id="overlay" class="overlay" role="dialog" aria-hidden="true">
+      <div class="player">
+        <video id="video" playsinline webkit-playsinline></video>
+        <div id="playBtn" class="customPlay" aria-hidden="false" title="Play">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <div id="audioWarn" style="position:absolute;left:12px;top:12px;padding:8px 12px;background:rgba(255,255,255,0.08);border-radius:8px;color:#ffd7d7;display:none;z-index:5">No audio detected in this file</div>
+      </div>
+    </div>
+
+    <div id="end" class="end" aria-hidden="true">
+      <h3>Thank you for being part of my memories ❤️</h3>
+      <div class="final-hearts" style="font-size:34px">❤️ ❤️ ❤️</div>
+    </div>
+
+  </main>
+
+  <script>
+    // Elements
+    const envelope = document.getElementById('envelope');
+    const seal = document.getElementById('seal');
+    const folded = document.getElementById('folded');
+    const letter = document.getElementById('letter');
+    const content = document.getElementById('content');
+    const gift = document.getElementById('gift');
+    const overlay = document.getElementById('overlay');
+    const video = document.getElementById('video');
+    const playBtn = document.getElementById('playBtn');
+    const endScreen = document.getElementById('end');
+
+    // Message paragraphs
+    const message = [
+      "Hey Navanithaeyyyy ❤️,\n\n",
+      "Nan dhan pesura 😌\n\n",
+      "I hope ur doing well. Konja naal ah olunga pesurathu illa... theriyala, u might be going through something 😔.\n\n",
+      "Ana remember, I'm always here for u 🤍. No matter what happens, I'll always be available for u.\n\n",
+      "I hope u get better soon 🌻. Athu varaikum nan una disturb panna matan, don't worry about me 😊.\n\n",
+      "I hope by seeing this message, konjam relieved ah feel pannuva nu namburen 💛.\n\n",
+      "Ur my bestttttttt gundu 🐻❤️. I would love to spend time with u and make more memories together ✨.\n\n",
+      "Remember, I'm here for u 🫶. Maybe I can't always give the perfect solution, but I can always support u, listen to u, and calm u down 🌸.\n\n",
+      "Dei mairandiii 😤❤️\n\nOlunga pesalam da... sanda lam venam da 😭🤝\n\n",
+      "Seriyaaa? 🥺💕\n\nLove you ❤️🫂✨\n\n— Shreeja 🌷"
+    ];
+
+    // Initial interactions
+    envelope.addEventListener('click', handleSeal);
+    seal.addEventListener('click', handleSeal);
+
+    function handleSeal(e){
+      // avoid double triggers
+      envelope.removeEventListener('click', handleSeal);
+      seal.removeEventListener('click', handleSeal);
+
+      // pop the seal visually
+      seal.classList.add('pop');
+
+      // open flap
+      setTimeout(()=>envelope.classList.add('open'), 120);
+
+      // reveal folded paper after flap opens
+      setTimeout(()=>{
+        folded.classList.add('show','floating');
+      }, 700);
+    }
+
+    // Folded paper open
+    folded.addEventListener('click', ()=>{
+      folded.classList.remove('floating');
+      folded.style.transition = 'transform 600ms, opacity 400ms';
+      folded.style.transform = 'translate(-50%, -70px) scale(0.98)';
+      folded.style.opacity = '0';
+      setTimeout(()=>{
+        folded.style.display='none';
+        // show letter
+        letter.classList.add('show');
+        typeSequence(message);
+        // focus letter for keyboard/touch scrolling
+        setTimeout(()=>{ try{ letter.focus(); }catch(e){} }, 600);
+      },420);
+    });
+
+    // Typewriter
+    function typeSequence(paragraphs){
+      content.innerHTML = '';
+      let p = 0;
+      function next(){
+        if(p >= paragraphs.length) return;
+        const node = document.createElement('div');
+        content.appendChild(node);
+        typeWriter(node, paragraphs[p], 0, ()=>{p++; setTimeout(next,300)});
+      }
+      next();
+    }
+
+    function typeWriter(node, text, i, cb){
+      if(i > text.length){ cb(); return; }
+      node.textContent = text.slice(0,i);
+      const ch = text[i-1];
+      const base = 24 + Math.floor(Math.random()*40);
+      const delay = (ch === '\n')? 40 : base;
+      setTimeout(()=>typeWriter(node,text,i+1,cb), delay);
+    }
+
+    // Gift
+    gift.addEventListener('click', ()=>{
+      gift.style.transform = 'scale(1.2)';
+      gift.style.transition = 'transform 280ms';
+      setTimeout(()=>{
+        // hide letter
+        letter.classList.remove('show');
+        letter.style.display = 'none';
+        // show overlay
+        overlay.classList.add('show');
+        overlay.setAttribute('aria-hidden','false');
+        // load video file
+        video.src = 'video.mp4';
+        video.load();
+        // check for audio after metadata loads
+        const audioWarn = document.getElementById('audioWarn');
+        const onMeta = function(){
+          let hasAudio = false;
+          try{
+            if(typeof video.mozHasAudio !== 'undefined') hasAudio = !!video.mozHasAudio;
+            else if(typeof video.webkitAudioDecodedByteCount !== 'undefined') hasAudio = (video.webkitAudioDecodedByteCount > 0);
+            else if(video.audioTracks && video.audioTracks.length>0) hasAudio = true;
+          }catch(e){}
+          if(!hasAudio){ audioWarn.style.display = 'block'; }
+          video.removeEventListener('loadedmetadata', onMeta);
+        };
+        video.addEventListener('loadedmetadata', onMeta);
+        // ensure audio is enabled (some devices may start muted)
+        try{ video.muted = false; video.volume = 1.0; }catch(e){}
+        // show play button and enable native controls so user can unmute if needed
+        playBtn.style.display = 'flex';
+        video.controls = true;
+      },260);
+    });
+
+    // custom play
+    playBtn.addEventListener('click', ()=>{
+      playBtn.style.display = 'none';
+      // ensure sound is enabled and volume is up before play
+      try{ video.muted = false; video.volume = 1.0; }catch(e){}
+      // try to request fullscreen for cinematic view (some browsers require user gesture)
+      try{
+        const requestTarget = video.requestFullscreen ? video : (overlay.requestFullscreen ? overlay : null);
+        if(requestTarget && requestTarget.requestFullscreen){ requestTarget.requestFullscreen().catch(()=>{}); }
+      }catch(e){}
+      video.play().catch(()=>{});
+      // allow controls after play
+      setTimeout(()=>{ video.controls = true; }, 700);
+    });
+
+    // when video ends
+    video.addEventListener('ended', ()=>{
+      overlay.classList.remove('show');
+      overlay.setAttribute('aria-hidden','true');
+      endScreen.classList.add('show');
+      endScreen.setAttribute('aria-hidden','false');
+      // little hearts float on end screen
+      setTimeout(()=>{
+        const finalHearts = document.querySelector('.final-hearts');
+        finalHearts.style.animation = 'rise 6s linear infinite';
+      },150);
+    });
+
+    // accessibility: allow pressing seal via keyboard
+    seal.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' ') handleSeal(); });
+
+    // hint: pause particles motion on visibility change to save battery
+    document.addEventListener('visibilitychange', ()=>{
+      if(document.hidden){ document.querySelectorAll('.heart').forEach(h=>h.style.animationPlayState='paused') }
+      else { document.querySelectorAll('.heart').forEach(h=>h.style.animationPlayState='running') }
+    });
+
+    // Make envelope not interactive if video overlay open
+    overlay.addEventListener('click', (e)=>{
+      // clicking outside player stops video
+      if(e.target === overlay){
+        video.pause(); overlay.classList.remove('show');
+      }
+    });
+
+    // ready: show subtle wiggling gift after typewriter completes
+    // attach mutation observer to content container to detect finish
+    const obs = new MutationObserver(()=>{
+      // when content has same number of child nodes as message
+      if(content.children.length === message.length){
+        // show gift wiggle
+        gift.classList.add('wiggle');
+      }
+    });
+    obs.observe(content,{childList:true});
+
+  </script>
+</body>
+</html>
