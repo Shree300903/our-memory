@@ -21,7 +21,7 @@
       background: radial-gradient(circle at top, rgba(255,255,255,0.08), transparent 28%),
                   linear-gradient(180deg, var(--bg1), var(--bg2) 35%, var(--bg3));
       color: white;
-      overflow: hidden;
+      overflow: auto;
       min-height: 100vh;
     }
 
@@ -32,7 +32,7 @@
       align-items: center;
       justify-content: center;
       padding: 24px;
-      overflow: hidden;
+      overflow: visible;
     }
 
     .ambient {
@@ -187,7 +187,7 @@
       box-shadow: 0 40px 130px rgba(0,0,0,0.4);
       backdrop-filter: blur(20px);
       z-index: 2;
-      overflow: hidden;
+      overflow: visible;
     }
 
     .envelope-wrap {
@@ -235,6 +235,12 @@
 
     .envelope.open .flap {
       transform: rotateX(-180deg);
+    }
+
+    .envelope.fade-away {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s ease;
     }
 
     .fold-lines::after {
@@ -318,17 +324,18 @@
       display: none;
       position: absolute;
       left: 50%;
-      top: 48%;
-      transform: translate(-50%, 0);
-      width: 78%;
-      max-width: 720px;
-      max-height: 74vh;
-      padding: 28px 34px;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 700px;
+      max-height: 80vh;
+      padding: 40px;
       border-radius: 22px;
       background: linear-gradient(180deg, #fff7ee, #fef4e7);
       box-shadow: 0 30px 90px rgba(0,0,0,0.35);
       color: var(--ink);
       overflow-y: auto;
+      scroll-behavior: smooth;
       -webkit-overflow-scrolling: touch;
     }
 
@@ -372,6 +379,14 @@
       align-items: center;
       cursor: pointer;
       user-select: none;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .gift-box.visible {
+      opacity: 1;
+      pointer-events: auto;
     }
 
     .gift {
@@ -620,11 +635,22 @@
     const letter = document.getElementById('letter');
     const content = document.getElementById('content');
     const gift = document.getElementById('gift');
+    const giftBox = document.querySelector('.gift-box');
     const overlay = document.getElementById('overlay');
     const video = document.getElementById('video');
     const playBtn = document.getElementById('playBtn');
     const closeVideo = document.getElementById('closeVideo');
     const endScreen = document.getElementById('end');
+
+    function checkScrollBottom() {
+      if (letter.scrollTop + letter.clientHeight >= letter.scrollHeight - 24) {
+        giftBox.classList.add('visible');
+        gift.classList.add('wiggle');
+      }
+    }
+
+    letter.addEventListener('scroll', checkScrollBottom);
+    letter.addEventListener('touchmove', checkScrollBottom);
 
     const message = [
       "Hey Navanithaeyyyy ❤️,\n\n",
@@ -677,10 +703,11 @@
     folded.addEventListener('click', () => {
       folded.classList.remove('floating');
       folded.style.transition = 'transform 0.6s ease, opacity 0.4s ease';
-      folded.style.transform = 'translate(-50%, -70px) scale(0.96)';
+      folded.style.transform = 'translate(-50%, -100px) scale(0.96)';
       folded.style.opacity = '0';
       setTimeout(() => {
         folded.style.display = 'none';
+        envelope.classList.add('fade-away');
         letter.classList.add('show');
         typeSequence(message);
         setTimeout(() => letter.focus(), 700);
