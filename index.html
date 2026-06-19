@@ -5,150 +5,615 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Our Memory ❤️</title>
   <style>
-    :root{
-      --bg1:#08111f; --bg2:#0c1d35; --bg3:#15294a;
-      --paper:#fffdf6; --paper-edge:#f0e7d8; --ink:#2c1f0f;
-      --accent:#e25b5b; --glass:rgba(255,255,255,0.06);
+    :root {
+      --bg1: #060a18;
+      --bg2: #081529;
+      --bg3: #111f3c;
+      --paper: #fff7ee;
+      --ink: #322517;
+      --accent: #e85f69;
+      --shadow: rgba(0, 0, 0, 0.45);
     }
-    html,body{height:100%;margin:0;font-family:Georgia,serif;-webkit-font-smoothing:antialiased}
-    body{
-      background:linear-gradient(180deg,var(--bg1),var(--bg2),var(--bg3));
-      display:flex;align-items:center;justify-content:center;padding:24px;overflow:hidden;color:var(--paper);
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body {
+      background: radial-gradient(circle at top, rgba(255,255,255,0.08), transparent 28%),
+                  linear-gradient(180deg, var(--bg1), var(--bg2) 35%, var(--bg3));
+      color: white;
+      overflow: hidden;
+      min-height: 100vh;
     }
-    .stage{width:100%;max-width:920px;position:relative;display:flex;align-items:center;justify-content:center}
 
-    /* floating hearts + particles */
-    .particles{position:absolute;inset:0;pointer-events:none;overflow:hidden}
-    .heart{position:absolute;font-size:18px;opacity:0.95;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.45));animation:rise linear infinite}
-    .heart:nth-child(1){left:8%;animation-duration:9s;animation-delay:0s}
-    .heart:nth-child(2){left:28%;animation-duration:7.5s;animation-delay:1s}
-    .heart:nth-child(3){left:52%;animation-duration:10s;animation-delay:0.5s}
-    .heart:nth-child(4){left:72%;animation-duration:8s;animation-delay:2s}
-    .heart:nth-child(5){left:88%;animation-duration:11s;animation-delay:0.8s}
-    @keyframes rise{0%{transform:translateY(0) scale(.9);opacity:0.95}60%{opacity:0.8}100%{transform:translateY(-900px) scale(1.2);opacity:0}}
-
-    /* container card for glassy feel */
-    .card{position:relative;width:100%;padding:40px;display:flex;align-items:center;justify-content:center;border-radius:18px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 20px 60px rgba(3,8,18,0.6);backdrop-filter:blur(6px);}
-
-    /* Envelope */
-    .envelope-wrap{position:relative;width:420px;height:260px;display:flex;align-items:center;justify-content:center}
-    .envelope{position:relative;width:360px;height:220px;background:linear-gradient(180deg,#faf5e9,#f3e9d6);border-radius:10px;box-shadow:0 18px 50px rgba(0,0,0,0.5);overflow:visible}
-    /* bottom body shape with subtle fold */
-    .envelope::before{content:'';position:absolute;left:0;right:0;bottom:0;height:60%;background:linear-gradient(180deg,#fffaf0,#efe4cc);border-bottom-left-radius:10px;border-bottom-right-radius:10px}
-    /* flap */
-    .flap{position:absolute;left:0;right:0;top:-2px;height:0;width:0;border-left:180px solid transparent;border-right:180px solid transparent;border-bottom:110px solid #e8d7b5;border-top-left-radius:6px;border-top-right-radius:6px;transform-origin:top center;transition:transform 900ms cubic-bezier(.2,.9,.18,1);box-shadow:0 12px 28px rgba(0,0,0,0.28)}
-    .envelope.open .flap{transform:rotateX(-180deg)}
-
-    /* front fold lines */
-    .fold-lines{position:absolute;inset:0;pointer-events:none}
-    .fold-lines::after{content:'';position:absolute;left:50%;top:12%;width:2px;height:78%;background:linear-gradient(180deg,transparent,rgba(0,0,0,0.06));transform:translateX(-50%);opacity:0.15}
-
-    /* wax seal */
-    .seal{position:absolute;left:50%;top:54%;transform:translate(-50%,-50%);width:72px;height:72px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#ffb3b3,#e14b4b);display:flex;align-items:center;justify-content:center;color:white;font-size:28px;box-shadow:0 8px 26px rgba(0,0,0,0.5),0 2px 10px rgba(226,91,91,0.45);cursor:pointer;transition:transform 160ms}
-    .seal:active{transform:translate(-50%,-50%) scale(.96)}
-    .seal.pop{transform:translate(-50%,-80%) scale(0.85);opacity:0;transition:transform 420ms ease,opacity 420ms ease}
-
-    /* folded paper */
-    .folded{position:absolute;left:50%;top:48%;transform:translate(-50%,20px);width:300px;height:140px;background:linear-gradient(180deg,#fffef8,#f7f0dd);border-radius:10px;box-shadow:0 22px 46px rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;color:var(--ink);font-weight:700;letter-spacing:0.4px;cursor:pointer;opacity:0;pointer-events:none;transition:transform 700ms cubic-bezier(.2,.9,.18,1),opacity 600ms}
-    .folded.show{opacity:1;pointer-events:auto;transform:translate(-50%,-40px)}
-    .folded.floating{animation:float 6s ease-in-out infinite}
-    @keyframes float{0%{transform:translate(-50%,-40px) translateY(0)}50%{transform:translate(-50%,-40px) translateY(-6px)}100%{transform:translate(-50%,-40px) translateY(0)}}
-
-    /* unfold / letter */
-    .letter{display:none;position:absolute;left:50%;top:48%;transform:translate(-50%,0);width:78%;max-width:720px;background:linear-gradient(180deg,var(--paper),#fff9ea);padding:28px 32px;border-radius:12px;box-shadow:0 30px 80px rgba(2,6,18,0.6);color:var(--ink);
-      max-height:74vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-right:20px;
+    .scene {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow: hidden;
     }
-    .letter.show{display:block;animation:letterPop 900ms cubic-bezier(.2,.9,.18,1) forwards}
-    @keyframes letterPop{0%{transform:translate(-50%,30px) scale(.98);opacity:0}60%{transform:translate(-50%,-10px) scale(1.02);opacity:1}100%{transform:translate(-50%,0) scale(1);opacity:1}}
 
-    .letter h2{margin:0 0 12px 0;text-align:center}
-    .letter .intro{font-weight:700;text-align:center;color:#8c5746;margin-bottom:10px}
-    .letter .content{min-height:260px;font-size:18px;line-height:1.8;white-space:pre-wrap}
+    .ambient {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
 
-    /* gift */
-    .gift{font-size:64px;display:inline-block;cursor:pointer;margin-top:18px;transition:transform .28s,box-shadow .28s;filter:drop-shadow(0 8px 30px rgba(0,0,0,0.35));}
-    .gift:hover{transform:translateY(-6px) scale(1.05)}
-    .gift.wiggle{animation:wig 2.6s ease-in-out infinite}
-    @keyframes wig{0%{transform:rotate(0)}20%{transform:rotate(-8deg)}40%{transform:rotate(6deg)}60%{transform:rotate(-6deg)}80%{transform:rotate(4deg)}100%{transform:rotate(0)}}
+    .spark {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.7);
+      filter: blur(0.6px);
+      opacity: 0.85;
+      animation: drift 12s linear infinite;
+    }
 
-    /* video overlay */
-    .overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.0);visibility:hidden;opacity:0;transition:opacity .6s,visibility .6s}
-    .overlay.show{visibility:visible;opacity:1;background:rgba(0,0,0,0.88)}
-    .player{position:relative;width:95%;max-width:1100px;max-height:95vh}
-    .player video{width:100%;height:100%;border-radius:8px;background:black;object-fit:contain}
-    .player .customPlay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:96px;height:96px;border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 12px 40px rgba(0,0,0,0.6)}
-    .player .customPlay svg{width:44px;height:44px;fill:var(--accent)}
+    .heart {
+      position: absolute;
+      font-size: 18px;
+      opacity: 0.9;
+      animation: floatHeart linear infinite;
+      text-shadow: 0 10px 22px rgba(0,0,0,0.18);
+    }
 
-    /* end fade message */
-    .end{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#000;color:var(--paper);opacity:0;visibility:hidden;transition:opacity .9s,visibility .9s}
-    .end.show{opacity:1;visibility:visible}
-    .end h3{font-size:24px;margin:0 0 10px}
+    @keyframes drift {
+      0% { transform: translateY(0) scale(0.8); opacity: 0.9; }
+      50% { opacity: 0.5; }
+      100% { transform: translateY(-120vh) scale(1.2); opacity: 0; }
+    }
 
-    /* responsiveness */
-    @media (max-width:600px){
-      .envelope{width:300px;height:190px}
-      .flap{border-left:150px solid transparent;border-right:150px solid transparent;border-bottom:95px solid #e8d7b5}
-      .seal{width:58px;height:58px;font-size:24px}
-      .folded{width:260px;height:120px}
-      .letter{width:92%}
+    @keyframes floatHeart {
+      0% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-18px) scale(1.05); }
+      100% { transform: translateY(-280px) scale(1.1); opacity: 0; }
+    }
+
+    .password-screen {
+      position: fixed;
+      inset: 0;
+      background: rgba(2,8,24,0.96);
+      display: grid;
+      place-items: center;
+      z-index: 20;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+
+    .password-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .password-card {
+      width: min(520px, 92vw);
+      padding: 34px 30px 28px;
+      border-radius: 30px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: 0 32px 90px rgba(0,0,0,0.45);
+      backdrop-filter: blur(18px);
+      position: relative;
+    }
+
+    .password-card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0));
+      pointer-events: none;
+    }
+
+    .password-card h1 {
+      margin: 0 0 14px;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      letter-spacing: 0.02em;
+      line-height: 1.02;
+    }
+
+    .password-card p {
+      margin: 0 0 28px;
+      color: rgba(255,255,255,0.82);
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .password-card input {
+      width: 100%;
+      padding: 16px 18px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.08);
+      color: white;
+      font-size: 1rem;
+      outline: none;
+      margin-bottom: 18px;
+    }
+
+    .password-card input::placeholder {
+      color: rgba(255,255,255,0.6);
+    }
+
+    .password-card button {
+      width: 100%;
+      padding: 16px 18px;
+      border: none;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #fe6f8d, #e44f64);
+      color: white;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 16px 30px rgba(231,82,98,0.28);
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+
+    .password-card button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+    }
+
+    .password-card .error {
+      margin-top: 14px;
+      min-height: 22px;
+      color: #ffb4ba;
+      font-size: 0.95rem;
+    }
+
+    .password-card .badge {
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 0.92rem;
+      background: rgba(255,255,255,0.1);
+      margin-bottom: 18px;
+      color: white;
+      letter-spacing: 0.02em;
+    }
+
+    .card {
+      position: relative;
+      width: min(980px, 100%);
+      padding: 32px;
+      border-radius: 32px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 40px 130px rgba(0,0,0,0.4);
+      backdrop-filter: blur(20px);
+      z-index: 2;
+      overflow: hidden;
+    }
+
+    .envelope-wrap {
+      position: relative;
+      width: 420px;
+      height: 260px;
+      margin: 0 auto;
+    }
+
+    .envelope {
+      position: relative;
+      width: 360px;
+      height: 220px;
+      background: linear-gradient(180deg, #fbf1e5, #f3e0c8);
+      border-radius: 16px;
+      box-shadow: 0 22px 60px rgba(0,0,0,0.35);
+      overflow: visible;
+      transition: transform 0.9s ease;
+    }
+
+    .envelope::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 40%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.75), transparent);
+      border-bottom-left-radius: 16px;
+      border-bottom-right-radius: 16px;
+    }
+
+    .flap {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -2px;
+      width: 0;
+      border-left: 180px solid transparent;
+      border-right: 180px solid transparent;
+      border-bottom: 110px solid #e8d7b5;
+      transform-origin: top center;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.2);
+      transition: transform 0.9s cubic-bezier(.2,.9,.18,1);
+    }
+
+    .envelope.open .flap {
+      transform: rotateX(-180deg);
+    }
+
+    .fold-lines::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 12%;
+      width: 2px;
+      height: 76%;
+      background: linear-gradient(180deg, transparent, rgba(0,0,0,0.08));
+      transform: translateX(-50%);
+      opacity: 0.16;
+    }
+
+    .seal {
+      position: absolute;
+      left: 50%;
+      top: 54%;
+      transform: translate(-50%, -50%);
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #ffb3b3, #d9474f);
+      display: grid;
+      place-items: center;
+      color: white;
+      font-size: 28px;
+      box-shadow: 0 8px 26px rgba(0,0,0,0.4), inset 0 0 16px rgba(255,255,255,0.12);
+      cursor: pointer;
+      transition: transform 0.15s ease;
+      z-index: 2;
+    }
+
+    .seal:active {
+      transform: translate(-50%, -50%) scale(0.95);
+    }
+
+    .seal.pop {
+      transform: translate(-50%, -80%) scale(0.85);
+      opacity: 0;
+      transition: transform 0.42s ease, opacity 0.42s ease;
+    }
+
+    .folded {
+      position: absolute;
+      left: 50%;
+      top: 48%;
+      transform: translate(-50%, 20px);
+      width: 300px;
+      height: 140px;
+      background: linear-gradient(180deg, #fffef8, #f7f0dd);
+      border-radius: 14px;
+      box-shadow: 0 22px 46px rgba(0,0,0,0.38);
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.7s cubic-bezier(.2,.9,.18,1), opacity 0.6s ease;
+    }
+
+    .folded.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, -40px);
+    }
+
+    .folded.floating {
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(-50%, -40px) translateY(0); }
+      50% { transform: translate(-50%, -40px) translateY(-8px); }
+    }
+
+    .letter {
+      display: none;
+      position: absolute;
+      left: 50%;
+      top: 48%;
+      transform: translate(-50%, 0);
+      width: 78%;
+      max-width: 720px;
+      max-height: 74vh;
+      padding: 28px 34px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, #fff7ee, #fef4e7);
+      box-shadow: 0 30px 90px rgba(0,0,0,0.35);
+      color: var(--ink);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .letter.show {
+      display: block;
+      animation: letterPop 0.9s cubic-bezier(.2,.9,.18,1) forwards;
+    }
+
+    @keyframes letterPop {
+      0% { transform: translate(-50%, 30px) scale(0.98); opacity: 0; }
+      60% { transform: translate(-50%, -10px) scale(1.02); opacity: 1; }
+      100% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+    }
+
+    .letter h2 {
+      margin: 0 0 14px;
+      text-align: center;
+      font-size: 1.9rem;
+      letter-spacing: 0.02em;
+    }
+
+    .letter .intro {
+      margin: 0 0 18px;
+      text-align: center;
+      color: #7f5c49;
+      font-weight: 700;
+    }
+
+    .letter .content {
+      font-size: 1rem;
+      line-height: 1.85;
+      white-space: pre-wrap;
+      letter-spacing: 0.01em;
+      color: #3e2f22;
+    }
+
+    .gift-box {
+      margin: 22px auto 0;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .gift {
+      font-size: 68px;
+      transition: transform 0.25s ease, filter 0.25s ease;
+      filter: drop-shadow(0 12px 34px rgba(0,0,0,0.34));
+    }
+
+    .gift:hover { transform: translateY(-6px) scale(1.05); }
+
+    .gift.wiggle {
+      animation: wig 2.6s ease-in-out infinite;
+    }
+
+    @keyframes wig {
+      0% { transform: rotate(0deg); }
+      20% { transform: rotate(-8deg); }
+      40% { transform: rotate(6deg); }
+      60% { transform: rotate(-6deg); }
+      80% { transform: rotate(4deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    .gift-label {
+      margin-top: 10px;
+      font-weight: 700;
+      color: #6a4537;
+      letter-spacing: 0.02em;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(1,3,12,0.92);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+      z-index: 15;
+    }
+
+    .overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .player {
+      position: relative;
+      width: min(1100px, 95%);
+      max-height: 95vh;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 40px 110px rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.45);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    video {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: black;
+    }
+
+    .customPlay {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%,-50%);
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.09);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+      transition: transform 0.2s ease;
+    }
+
+    .customPlay:hover { transform: translate(-50%,-50%) scale(1.04); }
+    .customPlay svg { width: 44px; height: 44px; fill: white; }
+
+    .closeBtn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.09);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      color: white;
+      font-size: 22px;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.35);
+    }
+
+    .end {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.97);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      padding: 26px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+      z-index: 18;
+    }
+
+    .end.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .end h3 {
+      margin: 0 0 16px;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.05;
+      letter-spacing: 0.01em;
+    }
+
+    .end p {
+      margin: 0;
+      color: rgba(255,255,255,0.82);
+      font-size: 1.05rem;
+      max-width: 640px;
+      line-height: 1.7;
+    }
+
+    .hint {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,0.66);
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+    }
+
+    @media (max-width: 720px) {
+      .envelope-wrap { width: auto; height: auto; }
+      .envelope { width: 300px; height: 180px; }
+      .flap { border-left: 150px solid transparent; border-right: 150px solid transparent; border-bottom: 90px solid #e8d7b5; }
+      .seal { width: 58px; height: 58px; font-size: 24px; }
+      .folded { width: 260px; height: 116px; }
+      .letter { width: 92%; padding: 22px 20px; }
+      .password-card { padding: 26px 22px; }
+      .password-card h1 { font-size: 2.4rem; }
+      .gift { font-size: 56px; }
+      .player { width: 95%; }
+    }
+
+    .shake { animation: shake 0.3s ease; }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      50% { transform: translateX(6px); }
+      75% { transform: translateX(-4px); }
+      100% { transform: translateX(0); }
     }
   </style>
 </head>
 <body>
-  <main class="stage">
-    <div class="particles" aria-hidden="true">
-      <span class="heart">❤️</span>
-      <span class="heart">❤️</span>
-      <span class="heart">❤️</span>
-      <span class="heart">❤️</span>
-      <span class="heart">❤️</span>
+  <div class="scene" aria-live="polite">
+    <div class="ambient" aria-hidden="true">
+      <span class="spark" style="left:6%;top:55%;animation-duration:13s;"></span>
+      <span class="spark" style="left:22%;top:82%;animation-duration:10s;"></span>
+      <span class="spark" style="left:38%;top:28%;animation-duration:15s;"></span>
+      <span class="spark" style="left:65%;top:72%;animation-duration:12s;"></span>
+      <span class="spark" style="left:82%;top:40%;animation-duration:11s;"></span>
+      <span class="heart" style="left:10%;top:78%;animation-duration:9s;animation-delay:0.2s;">❤️</span>
+      <span class="heart" style="left:32%;top:92%;animation-duration:8.4s;animation-delay:0.6s;">❤️</span>
+      <span class="heart" style="left:54%;top:66%;animation-duration:10.5s;animation-delay:0.4s;">❤️</span>
+      <span class="heart" style="left:72%;top:82%;animation-duration:9.8s;animation-delay:1.1s;">❤️</span>
+      <span class="heart" style="left:88%;top:55%;animation-duration:11.2s;animation-delay:0.8s;">❤️</span>
     </div>
 
-    <section class="card" aria-labelledby="title">
+    <div class="password-screen" id="passwordScreen" role="dialog" aria-modal="true" aria-labelledby="passwordTitle">
+      <div class="password-card">
+        <div class="badge">💌 A Memory For You</div>
+        <h1 id="passwordTitle">A Memory For You</h1>
+        <p>Only one person knows the password ❤️</p>
+        <input id="passwordInput" type="password" placeholder="Enter password" autocomplete="off" aria-label="Password" />
+        <button id="unlockBtn" type="button">Unlock Memory 💌</button>
+        <div class="error" id="passwordError" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <section class="card" aria-labelledby="sceneTitle">
       <div class="envelope-wrap" aria-hidden="false">
-        <div id="envelope" class="envelope" role="button" aria-label="Open envelope">
+        <div id="envelope" class="envelope" role="button" aria-label="Sealed envelope">
           <div class="flap"></div>
           <div class="fold-lines"></div>
-          <div id="seal" class="seal" title="Open me">❤</div>
+          <div id="seal" class="seal" role="button" aria-label="Wax seal">❤</div>
         </div>
 
-        <div id="folded" class="folded" role="button" aria-label="Tap to open">
-          Tap To Open 📜
-        </div>
+        <div id="folded" class="folded" role="button" aria-label="Tap to open folded letter">Tap To Open 📜</div>
 
-        <article id="letter" class="letter" aria-live="polite" tabindex="0">
-          <h2 id="title">For You ❤️</h2>
-          <div class="intro">A Memory I Never Wanted To Forget — Open slowly... ✨</div>
+        <article id="letter" class="letter" aria-labelledby="letterTitle" tabindex="0">
+          <h2 id="letterTitle">For You ❤️</h2>
+          <div class="intro">A hidden moment, written just for you.</div>
           <div id="content" class="content"></div>
-          <div style="text-align:center;margin-top:12px">
-            <div style="font-weight:700;margin-bottom:6px">One More Thing... ❤️</div>
-            <div id="gift" class="gift wiggle" role="button" aria-label="Open memory">🎁</div>
-            <div style="font-weight:700;color:#5b3b2f;margin-top:6px">Open Memory</div>
+          <div class="gift-box">
+            <div id="gift" class="gift" role="button" aria-label="Open Memory">🎁</div>
+            <div class="gift-label">Open Memory</div>
           </div>
         </article>
-
       </div>
     </section>
 
     <div id="overlay" class="overlay" role="dialog" aria-hidden="true">
       <div class="player">
         <video id="video" playsinline webkit-playsinline></video>
-        <div id="playBtn" class="customPlay" aria-hidden="false" title="Play">
+        <div id="playBtn" class="customPlay" role="button" aria-label="Play video">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
         </div>
-        <div id="audioWarn" style="position:absolute;left:12px;top:12px;padding:8px 12px;background:rgba(255,255,255,0.08);border-radius:8px;color:#ffd7d7;display:none;z-index:5">No audio detected in this file</div>
+        <div id="closeVideo" class="closeBtn" role="button" aria-label="Close video">✕</div>
       </div>
     </div>
 
     <div id="end" class="end" aria-hidden="true">
       <h3>Thank you for being part of my memories ❤️</h3>
-      <div class="final-hearts" style="font-size:34px">❤️ ❤️ ❤️</div>
+      <p>Forever grateful for every moment ✨</p>
     </div>
 
-  </main>
+    <div class="hint">Only share the public GitHub Pages link when you're ready.</div>
+  </div>
 
   <script>
-    // Elements
+    const correctPassword = 'shreejaram';
+    const passwordScreen = document.getElementById('passwordScreen');
+    const passwordInput = document.getElementById('passwordInput');
+    const unlockBtn = document.getElementById('unlockBtn');
+    const passwordError = document.getElementById('passwordError');
     const envelope = document.getElementById('envelope');
     const seal = document.getElementById('seal');
     const folded = document.getElementById('folded');
@@ -158,14 +623,14 @@
     const overlay = document.getElementById('overlay');
     const video = document.getElementById('video');
     const playBtn = document.getElementById('playBtn');
+    const closeVideo = document.getElementById('closeVideo');
     const endScreen = document.getElementById('end');
 
-    // Message paragraphs
     const message = [
       "Hey Navanithaeyyyy ❤️,\n\n",
       "Nan dhan pesura 😌\n\n",
       "I hope ur doing well. Konja naal ah olunga pesurathu illa... theriyala, u might be going through something 😔.\n\n",
-      "Ana remember, I'm always here for u 🤍. No matter what happens, I'll always be available for u.\n\n",
+      "Ana remember, I'm always here for u 🤍. No matter what happens, I'll always be available for u. Nee enna venumnaalum share pannalam, anytime 🫂.\n\n",
       "I hope u get better soon 🌻. Athu varaikum nan una disturb panna matan, don't worry about me 😊.\n\n",
       "I hope by seeing this message, konjam relieved ah feel pannuva nu namburen 💛.\n\n",
       "Ur my bestttttttt gundu 🐻❤️. I would love to spend time with u and make more memories together ✨.\n\n",
@@ -174,156 +639,122 @@
       "Seriyaaa? 🥺💕\n\nLove you ❤️🫂✨\n\n— Shreeja 🌷"
     ];
 
-    // Initial interactions
+    function showError(message) {
+      passwordError.textContent = message;
+      passwordInput.classList.add('shake');
+      setTimeout(() => passwordInput.classList.remove('shake'), 300);
+    }
+
+    function unlockMemory() {
+      const entry = passwordInput.value.trim().toLowerCase();
+      if (entry === correctPassword) {
+        passwordError.textContent = '';
+        passwordScreen.classList.add('hidden');
+        setTimeout(() => passwordScreen.style.display = 'none', 800);
+      } else {
+        showError('Wrong password ❤️');
+      }
+    }
+
+    unlockBtn.addEventListener('click', unlockMemory);
+    passwordInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') unlockMemory();
+    });
+
+    passwordInput.focus();
+
+    function handleSeal() {
+      envelope.removeEventListener('click', handleSeal);
+      seal.removeEventListener('click', handleSeal);
+      seal.classList.add('pop');
+      setTimeout(() => envelope.classList.add('open'), 120);
+      setTimeout(() => folded.classList.add('show', 'floating'), 700);
+    }
+
     envelope.addEventListener('click', handleSeal);
     seal.addEventListener('click', handleSeal);
 
-    function handleSeal(e){
-      // avoid double triggers
-      envelope.removeEventListener('click', handleSeal);
-      seal.removeEventListener('click', handleSeal);
-
-      // pop the seal visually
-      seal.classList.add('pop');
-
-      // open flap
-      setTimeout(()=>envelope.classList.add('open'), 120);
-
-      // reveal folded paper after flap opens
-      setTimeout(()=>{
-        folded.classList.add('show','floating');
-      }, 700);
-    }
-
-    // Folded paper open
-    folded.addEventListener('click', ()=>{
+    folded.addEventListener('click', () => {
       folded.classList.remove('floating');
-      folded.style.transition = 'transform 600ms, opacity 400ms';
-      folded.style.transform = 'translate(-50%, -70px) scale(0.98)';
+      folded.style.transition = 'transform 0.6s ease, opacity 0.4s ease';
+      folded.style.transform = 'translate(-50%, -70px) scale(0.96)';
       folded.style.opacity = '0';
-      setTimeout(()=>{
-        folded.style.display='none';
-        // show letter
+      setTimeout(() => {
+        folded.style.display = 'none';
         letter.classList.add('show');
         typeSequence(message);
-        // focus letter for keyboard/touch scrolling
-        setTimeout(()=>{ try{ letter.focus(); }catch(e){} }, 600);
-      },420);
+        setTimeout(() => letter.focus(), 700);
+      }, 450);
     });
 
-    // Typewriter
-    function typeSequence(paragraphs){
+    function typeSequence(lines) {
       content.innerHTML = '';
-      let p = 0;
-      function next(){
-        if(p >= paragraphs.length) return;
-        const node = document.createElement('div');
-        content.appendChild(node);
-        typeWriter(node, paragraphs[p], 0, ()=>{p++; setTimeout(next,300)});
+      let current = 0;
+      function nextLine() {
+        if (current >= lines.length) return;
+        const para = document.createElement('div');
+        content.appendChild(para);
+        typeWriter(para, lines[current], 0, () => {
+          current += 1;
+          setTimeout(nextLine, 320);
+        });
       }
-      next();
+      nextLine();
     }
 
-    function typeWriter(node, text, i, cb){
-      if(i > text.length){ cb(); return; }
-      node.textContent = text.slice(0,i);
-      const ch = text[i-1];
-      const base = 24 + Math.floor(Math.random()*40);
-      const delay = (ch === '\n')? 40 : base;
-      setTimeout(()=>typeWriter(node,text,i+1,cb), delay);
+    function typeWriter(node, text, index, callback) {
+      if (index > text.length) {
+        callback();
+        return;
+      }
+      node.textContent = text.slice(0, index);
+      const char = text[index - 1];
+      const delay = char === '\n' ? 35 : 28 + Math.random() * 30;
+      setTimeout(() => typeWriter(node, text, index + 1, callback), delay);
     }
 
-    // Gift
-    gift.addEventListener('click', ()=>{
-      gift.style.transform = 'scale(1.2)';
-      gift.style.transition = 'transform 280ms';
-      setTimeout(()=>{
-        // hide letter
-        letter.classList.remove('show');
+    gift.addEventListener('click', () => {
+      gift.style.transform = 'scale(1.18)';
+      setTimeout(() => gift.style.transform = '', 260);
+      letter.classList.remove('show');
+      setTimeout(() => {
         letter.style.display = 'none';
-        // show overlay
         overlay.classList.add('show');
-        overlay.setAttribute('aria-hidden','false');
-        // load video file
+        overlay.setAttribute('aria-hidden', 'false');
         video.src = 'video.mp4';
         video.load();
-        // check for audio after metadata loads
-        const audioWarn = document.getElementById('audioWarn');
-        const onMeta = function(){
-          let hasAudio = false;
-          try{
-            if(typeof video.mozHasAudio !== 'undefined') hasAudio = !!video.mozHasAudio;
-            else if(typeof video.webkitAudioDecodedByteCount !== 'undefined') hasAudio = (video.webkitAudioDecodedByteCount > 0);
-            else if(video.audioTracks && video.audioTracks.length>0) hasAudio = true;
-          }catch(e){}
-          if(!hasAudio){ audioWarn.style.display = 'block'; }
-          video.removeEventListener('loadedmetadata', onMeta);
-        };
-        video.addEventListener('loadedmetadata', onMeta);
-        // ensure audio is enabled (some devices may start muted)
-        try{ video.muted = false; video.volume = 1.0; }catch(e){}
-        // show play button and enable native controls so user can unmute if needed
-        playBtn.style.display = 'flex';
+        playBtn.style.display = 'grid';
         video.controls = true;
-      },260);
+        try { video.muted = false; video.volume = 1.0; } catch (err) {}
+      }, 360);
     });
 
-    // custom play
-    playBtn.addEventListener('click', ()=>{
+    playBtn.addEventListener('click', () => {
       playBtn.style.display = 'none';
-      // ensure sound is enabled and volume is up before play
-      try{ video.muted = false; video.volume = 1.0; }catch(e){}
-      // try to request fullscreen for cinematic view (some browsers require user gesture)
-      try{
-        const requestTarget = video.requestFullscreen ? video : (overlay.requestFullscreen ? overlay : null);
-        if(requestTarget && requestTarget.requestFullscreen){ requestTarget.requestFullscreen().catch(()=>{}); }
-      }catch(e){}
-      video.play().catch(()=>{});
-      // allow controls after play
-      setTimeout(()=>{ video.controls = true; }, 700);
+      try { video.muted = false; video.volume = 1.0; } catch (err) {}
+      video.play().catch(() => {});
     });
 
-    // when video ends
-    video.addEventListener('ended', ()=>{
+    closeVideo.addEventListener('click', () => {
       overlay.classList.remove('show');
-      overlay.setAttribute('aria-hidden','true');
+      overlay.setAttribute('aria-hidden', 'true');
+      video.pause();
+    });
+
+    overlay.addEventListener('click', (event) => {
+      if (event.target === overlay) {
+        overlay.classList.remove('show');
+        overlay.setAttribute('aria-hidden', 'true');
+        video.pause();
+      }
+    });
+
+    video.addEventListener('ended', () => {
+      overlay.classList.remove('show');
+      overlay.setAttribute('aria-hidden', 'true');
       endScreen.classList.add('show');
-      endScreen.setAttribute('aria-hidden','false');
-      // little hearts float on end screen
-      setTimeout(()=>{
-        const finalHearts = document.querySelector('.final-hearts');
-        finalHearts.style.animation = 'rise 6s linear infinite';
-      },150);
+      endScreen.setAttribute('aria-hidden', 'false');
     });
-
-    // accessibility: allow pressing seal via keyboard
-    seal.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' ') handleSeal(); });
-
-    // hint: pause particles motion on visibility change to save battery
-    document.addEventListener('visibilitychange', ()=>{
-      if(document.hidden){ document.querySelectorAll('.heart').forEach(h=>h.style.animationPlayState='paused') }
-      else { document.querySelectorAll('.heart').forEach(h=>h.style.animationPlayState='running') }
-    });
-
-    // Make envelope not interactive if video overlay open
-    overlay.addEventListener('click', (e)=>{
-      // clicking outside player stops video
-      if(e.target === overlay){
-        video.pause(); overlay.classList.remove('show');
-      }
-    });
-
-    // ready: show subtle wiggling gift after typewriter completes
-    // attach mutation observer to content container to detect finish
-    const obs = new MutationObserver(()=>{
-      // when content has same number of child nodes as message
-      if(content.children.length === message.length){
-        // show gift wiggle
-        gift.classList.add('wiggle');
-      }
-    });
-    obs.observe(content,{childList:true});
-
   </script>
 </body>
 </html>
